@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: mlflow-deployment
-        image: joshsgoldstein/mlflow-tracking:latest
+        image: joshsgoldstein/mlflow-server:latest
         imagePullPolicy: Always
         args:
         - --host=0.0.0.0

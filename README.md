@@ -1,4 +1,6 @@
-Create mlFlow Tracking Container
+# Create MLFlow service running on kubernetes
+
+Follow along in order
 
 Inspiration:
 
@@ -6,34 +8,37 @@ Inspiration:
 
 [Minikube 2020 article](https://towardsdatascience.com/mlflow-part-2-deploying-a-tracking-server-to-minikube-a2d6671e6455)
 
-Add Postgres to k8s cluster:
+## Step 1: Create Kind Cluster (If using Kind)
+```
+kind create cluster --name mlflow-cluster --config=kind-spec.yaml
+```
+
+## Step 2: Add Postgres Repo to Helm
 ```
 #docs: https://artifacthub.io/packages/helm/bitnami/postgresql
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install mlflow-postgres bitnami/postgresql --set postgresqlDatabase=mlflow_db --set postgresqlPassword=mlflow --set service.type=NodePort
 ```
 
-Add Minio to the Cluster:
-```
-helm install mlflow-minio --set rootUser=minio,rootPassword=minio minio/minio
-```
+## Step 3: Install Postgres using Helm
 
-Build mLFlow Container
-
-Deploy Container to k8s
 ```
-helm install mlf-ts mlflow-tracking/mlflow-tracking-server \
---set env.mlflowArtifactPath=${GS_ARTIFACT_PATH} \
---set env.mlflowDBAddr=mlf-db-postgresql \
---set env.mlflowUser=postgres \
---set env.mlflowPass=mlflow \
---set env.mlflowDBName=mlflow_db \
---set env.mlflowDBPort=5432 \
---set service.type=LoadBalancer \
---set image.repository=test/mlflow-tracking \
---set image.tag=latest
+helm upgrade mlflow-postgres -f postgres/values.yaml bitnami/postgresql --install
 ```
 
+## Step 4: Install Minio
+```
+helm upgrade -f minio/values.yaml mlflow-minio minio/minio --install
+```
 
+## (Optional) Step 5: Build mLFlow Container
 
-Setup MySQL 
+If you want to build your own container of MLFlow you can use the dockerfile in the directory.  Otherwise the image is uploaded to dockerhub [DockerHub MLFlow Server](https://hub.docker.com/repository/docker/joshsgoldstein/mlflow-server)
+```
+docker build --tag joshsgoldstein/mlflow-server:latest ml-flow/.
+```
+
+## Step 6: Apply Deployment YAML for MLFlow Container
+```
+k apply -f ml-flow-deployment.yaml
+```
+
