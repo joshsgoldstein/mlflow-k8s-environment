@@ -12,6 +12,6 @@ spec:
     http:
       paths:
         - backend:
-            serviceName: mlflow-minio-service
+            serviceName: mlflow-minio
             servicePort: 9000
           path: /

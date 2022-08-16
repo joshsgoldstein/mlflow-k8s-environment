@@ -1,5 +1,5 @@
-rootPassword: minio
-rootUser: minio
+accessKey: "admin"
+secretKey: "password123"
 
 persistence:
   enabled: true
